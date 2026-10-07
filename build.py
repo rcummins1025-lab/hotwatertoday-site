@@ -306,7 +306,7 @@ HOME = head(
   <div class="wrap hero-inner">
     <p class="kicker">Water heaters · Boilers · Plumbing</p>
     <h1 id="hero-h">No hot water?<br><span class="hot">Not for long.</span></h1>
-    <p class="lead">{BUSINESS} repairs and replaces water heaters. Gas, electric and tankless, done right the first time.</p>
+    <p class="lead">{BUSINESS} repairs and replaces water heaters. Gas, electric and tankless.</p>
     <div class="hero-cta">
       <a class="btn btn-amber" href="tel:{PHONE_TEL}">{ICON_PHONE}Call {PHONE}</a>
       <a class="btn btn-ghost" href="#quote">Get a quote</a>
