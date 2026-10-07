@@ -15,11 +15,14 @@ PHONE_TEL = "+17812043247"
 PUBLIC_EMAIL = "info@hotwatertodaycorp.com"   # shown on the site
 SITE_URL = "https://www.hotwatertodaycorp.com"
 
-# Lead form (FormSubmit). TEST MODE: leads go to Ryan only.
+# Lead form (FormSubmit). LIVE: leads go to Ryan, cc Kyle (info@).
 # To go live: FORM_TO = "info@hotwatertodaycorp.com", drop "TEST " from the
 # subject, rebuild, then submit once and click FormSubmit's activation email.
 FORM_TO = "rcummins1025@gmail.com"
-FORM_SUBJECT = "TEST Hot Water Today lead"
+FORM_SUBJECT = "New Hot Water Today lead"
+# Copies of every lead (comma-separated). Kyle gets each lead; FORM_TO stays
+# Ryan's activated address so no new FormSubmit activation is needed.
+FORM_CC = "info@hotwatertodaycorp.com"
 # Where FormSubmit sends visitors who submit without JavaScript. Use the
 # GitHub Pages address until the domain points here, then switch to SITE_URL.
 NEXT_URL = "https://www.hotwatertodaycorp.com/thanks.html"
@@ -175,6 +178,7 @@ def quote_section():
     </div>
     <form class="lead-form" id="lead-form" action="https://formsubmit.co/{FORM_TO}" method="POST">
       <input type="hidden" name="_subject" value="{escape(FORM_SUBJECT)}">
+      <input type="hidden" name="_cc" value="{escape(FORM_CC)}">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_next" value="{NEXT_URL}">
