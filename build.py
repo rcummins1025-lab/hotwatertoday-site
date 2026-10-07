@@ -125,12 +125,16 @@ def header(active):
 
 
 def proof():
-    lic = f" Lic. #{LICENSE_NO}." if LICENSE_NO else ""
+    # Only claim a license once LICENSE_NO is filled in (Kyle's MA license pending).
+    if LICENSE_NO:
+        third = f'<div class="proof-item"><strong>Licensed in MA</strong><span>Massachusetts licensed plumber. Lic. #{LICENSE_NO}.</span></div>'
+    else:
+        third = '<div class="proof-item"><strong>Every type</strong><span>Gas, electric and tankless water heaters, plus boilers.</span></div>'
     return f"""<section class="proof" aria-label="Service area, availability and license">
   <div class="wrap proof-grid">
     <a class="proof-item" href="#towns"><strong>{N_TOWNS} towns</strong><span>North and west of Boston, up to the New Hampshire line. Every one is listed below.</span></a>
     <div class="proof-item"><strong>Same-day service</strong><span>Call early. We’ll tell you straight when we can get there.</span></div>
-    <div class="proof-item"><strong>Licensed in MA</strong><span>Massachusetts licensed plumber.{lic}</span></div>
+    {third}
   </div>
 </section>
 """
