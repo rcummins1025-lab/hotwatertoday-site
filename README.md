@@ -6,11 +6,12 @@ Static site for Hot Water Today (Kyle Cadotte). Home, Services and a thank-you p
 index.html          Home
 services.html       Services
 thanks.html         Shown after the lead form is sent
-favicon.svg, apple-touch-icon.png
+favicon.ico, favicon-32.png, apple-touch-icon.png   Flame "O" from the logo
+logo.png            Original logo file, as supplied
 assets/site.css     All styles
 assets/site.js      Tap-through lead form
-assets/logo.svg     Navy wordmark (header)
-assets/logo-white.svg, logo-white.png, logo-navy.png, mark-512.png
+assets/logo.png     Logo with a transparent background (header and footer)
+assets/mark-512.png Flame "O" on transparent, 512px
 assets/fonts/       League Gothic + Libre Franklin (self-hosted, OFL)
 assets/img/         Photos, each in several widths, WebP + JPEG
 assets/og.jpg       Social preview image
@@ -47,11 +48,13 @@ To switch to Kyle's inbox when Ryan approves:
 3. Submit once, and have Kyle click the activation email at info@.
 4. Optional: FormSubmit's activation email gives a random alias. Use it in place of the address in `FORM_TO` to keep the email out of the page source.
 
-Each lead email lists: Issue, Heater type, How soon, Town, Name, Phone, Note. The form sends with JavaScript and then opens `thanks.html`. Without JavaScript it shows every question at once and FormSubmit redirects to `_next` (built from `SITE_URL`).
+Each lead email lists: Issue, Heater type, Water heater venting, Water heater location, Equipment size, How soon, Town, Name, Phone, Note. Venting and location are only asked (and only sent) for water heater requests; they are skipped when someone picks "Boiler or other plumbing". The form sends with JavaScript and then opens `thanks.html`. Without JavaScript it shows every question at once and FormSubmit redirects to `_next` (built from `SITE_URL`).
 
 ## Logo
 
-`assets/logo.svg` is the navy wordmark, `assets/logo-white.svg` the reversed one. Both are outlined paths, so they need no font installed. The PNGs are 1600px wide with transparent backgrounds for email, print and social. To swap in a different logo, replace these files with the same names (keep the SVGs roughly 6.5:1 wide, or adjust `.brand img` height in `site.css`) and replace `favicon.svg` and `apple-touch-icon.png`.
+`logo.png` is the logo as supplied (white background). `assets/logo.png` is the same logo trimmed, with the white removed so it sits on any light background, 800px wide. The footer is light gray because the logo's red and gray don't read on a dark background. The favicons are the flame "O" cut out of the logo.
+
+Site colors come from the logo: red `#C30405` (sampled from "HOT") for buttons, the call bar and accents, charcoal `#4A4A4A` for text and headings, `#2A2A2A` for the dark photo panels, white backgrounds. They are set once at the top of `assets/site.css`.
 
 ## Photos
 
