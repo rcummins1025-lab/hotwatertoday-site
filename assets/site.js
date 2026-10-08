@@ -15,6 +15,10 @@
   var townErr = form.querySelector('#town-err');
   var leadErr = form.querySelector('#lead-err');
   var townNext = form.querySelector('.step-town .next');
+  var locOther = form.querySelector('#lead-location-other');
+  var locErr = form.querySelector('#location-err');
+  var locNext = form.querySelector('.step-location .next');
+  var sizeInput = form.querySelector('#lead-size');
   var current = 0;
   var pending = null;
   var arrowed = false;
@@ -29,7 +33,7 @@
     return el ? el.value : '';
   }
 
-  // The heater-type step doesn't apply to boiler or general plumbing requests.
+  // The water heater steps (type, venting, location) don't apply to boiler or general plumbing requests.
   function skipped(step) {
     return step.getAttribute('data-skip-unless-heater') !== null &&
       value('Issue') === 'Boiler or other plumbing';
@@ -84,6 +88,13 @@
     townOther.required = other;
   }
 
+  var locField = locOther.closest('.field');
+  function syncLocation() {
+    var other = value('Water heater location') === 'Other';
+    locField.hidden = !other;
+    if (!other) { locErr.textContent = ''; locOther.removeAttribute('aria-invalid'); }
+  }
+
   function fieldError(el, msg, input) {
     el.textContent = msg;
     if (input) {
@@ -102,7 +113,8 @@
         setTimeout(function () { arrowed = false; }, 80);
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        if (form.querySelector('input[name="' + t.name + '"]:checked')) next();
+        // Go through the step's Next button so its checks run.
+        if (form.querySelector('input[name="' + t.name + '"]:checked')) t.closest('.step').querySelector('.next').click();
       }
     } else if (t === townSelect) {
       townKeyed = true;
@@ -114,6 +126,8 @@
     var t = e.target;
     if (t.type !== 'radio' || arrowed) return;
     if (t.closest('.step') !== steps[current]) return;
+    // "Other" location opens a text box instead of moving on.
+    if (t.name === 'Water heater location' && t.value === 'Other') return;
     advanceSoon(160);
   });
 
@@ -122,6 +136,10 @@
     if (t.type === 'radio') {
       var nb = t.closest('.step').querySelector('.next');
       if (nb) nb.hidden = false;
+      if (t.name === 'Water heater location') {
+        syncLocation();
+        if (t.value === 'Other') locOther.focus();
+      }
     } else if (t === townSelect) {
       syncTown();
       townErr.textContent = '';
@@ -132,7 +150,7 @@
   });
 
   Array.prototype.forEach.call(form.querySelectorAll('.step .next'), function (btn) {
-    if (btn === townNext) return;
+    if (btn === townNext || btn === locNext) return;
     btn.addEventListener('click', next);
   });
 
@@ -154,6 +172,21 @@
   });
   townOther.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') { e.preventDefault(); townNext.click(); }
+  });
+  locNext.addEventListener('click', function () {
+    locErr.textContent = '';
+    locOther.removeAttribute('aria-invalid');
+    if (value('Water heater location') === 'Other' && !locOther.value.trim()) {
+      fieldError(locErr, 'Tell us where the water heater is.', locOther);
+      locOther.focus();
+      return;
+    }
+    next();
+  });
+  [locOther, sizeInput].forEach(function (el) {
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); el.closest('.step').querySelector('.next').click(); }
+    });
   });
   if (back) back.addEventListener('click', prev);
 
@@ -186,15 +219,25 @@
 
     var town = townSelect.value === 'Other' ? (townOther.value.trim() || 'Other') : townSelect.value;
     var boiler = value('Issue') === 'Boiler or other plumbing';
+    var loc = value('Water heater location');
+    if (loc === 'Other') loc = 'Other: ' + (locOther.value.trim() || 'not given');
     var data = {
       'Issue': value('Issue'),
-      'Heater type': boiler ? 'n/a' : (value('Heater type') || 'not answered'),
+      'Heater type': boiler ? 'n/a' : (value('Heater type') || 'not answered')
+    };
+    // Venting and location only go out for water heater requests.
+    if (!boiler) {
+      data['Water heater venting'] = value('Water heater venting') || 'not answered';
+      data['Water heater location'] = loc || 'not answered';
+    }
+    Object.assign(data, {
+      'Equipment size': sizeInput.value.trim() || 'not provided',
       'How soon': value('How soon'),
       'Town': town,
       'Name': name.value.trim(),
       'Phone': phone.value.trim(),
       'Note': form.querySelector('#lead-note').value.trim()
-    };
+    });
     form.querySelectorAll('input[type="hidden"]').forEach(function (h) {
       if (h.name !== '_next') data[h.name] = h.value;
     });
@@ -226,6 +269,7 @@
 
   // Browsers can restore a picked town after Back/Forward.
   syncTown();
-  window.addEventListener('pageshow', syncTown);
+  syncLocation();
+  window.addEventListener('pageshow', function () { syncTown(); syncLocation(); });
   show(0, false);
 })();

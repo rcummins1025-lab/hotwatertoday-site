@@ -87,8 +87,9 @@ def head(title, description, path, preload_img=None):
 <title>{title}</title>
 <meta name="description" content="{description}">
 <link rel="canonical" href="{SITE_URL}/{path}">
-<meta name="theme-color" content="#0B1F3A">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="{title}">
@@ -111,13 +112,13 @@ def header(active):
     home = "" if active == "home" else "index.html"
     return f"""<header class="site-header">
   <div class="wrap">
-    <a class="brand" href="index.html" aria-label="{BUSINESS} home"><img src="assets/logo.svg" alt="{BUSINESS}" width="852" height="132"></a>
+    <a class="brand" href="index.html" aria-label="{BUSINESS} home"><img src="assets/logo.png" alt="{BUSINESS}" width="800" height="260"></a>
     <nav class="nav" aria-label="Main">
       <a class="wide" href="index.html"{cur("home")}>Home</a>
       <a href="services.html"{cur("services")}>Services</a>
       <a class="wide" href="{home}#towns">Towns</a>
       <a class="wide" href="{home}#quote">Get a quote</a>
-      <a class="btn btn-amber" href="tel:{PHONE_TEL}">{ICON_PHONE}{PHONE}</a>
+      <a class="btn btn-red" href="tel:{PHONE_TEL}">{ICON_PHONE}{PHONE}</a>
     </nav>
   </div>
 </header>
@@ -169,6 +170,10 @@ def quote_section():
              ("Boiler or other plumbing", "Boiler or other plumbing")]
     heater = [("Gas tank", "Gas tank"), ("Electric tank", "Electric tank"),
               ("Tankless", "Tankless"), ("Not sure", "Not sure")]
+    vent = [("Chimney vented", "Chimney vented"), ("Power vented", "Power vented"),
+            ("Not sure", "Not sure"), ("Not applicable", "Not applicable")]
+    location = [("Basement", "Basement"), ("Crawlspace", "Crawlspace"),
+                ("First floor", "First floor"), ("Other", "Other")]
     soon = [("Today, it's urgent", "Today. It’s urgent"), ("This week", "This week"),
             ("Just getting a quote", "Just getting a quote")]
     towns = "\n".join(f"            <option>{t}</option>" for t in TOWNS)
@@ -187,27 +192,54 @@ def quote_section():
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_next" value="{NEXT_URL}">
       <div class="hp" aria-hidden="true"><input type="text" name="_honey" tabindex="-1" autocomplete="off"></div>
-      <div class="lead-progress" aria-hidden="true"><span class="lead-bar"><span></span></span><span class="lead-count">Step 1 of 5</span></div>
+      <div class="lead-progress" aria-hidden="true"><span class="lead-bar"><span></span></span><span class="lead-count">Step 1 of 8</span></div>
       <fieldset class="step">
         <legend>What’s going on?</legend>
         <div class="opts">
 {opts("Issue", issue)}
         </div>
-        <button class="btn btn-navy next" type="button" hidden>Next</button>
+        <button class="btn btn-dark next" type="button" hidden>Next</button>
       </fieldset>
       <fieldset class="step" data-skip-unless-heater>
         <legend>What kind of heater?</legend>
         <div class="opts">
 {opts("Heater type", heater, required=False)}
         </div>
-        <button class="btn btn-navy next" type="button" hidden>Next</button>
+        <button class="btn btn-dark next" type="button" hidden>Next</button>
+      </fieldset>
+      <fieldset class="step" data-skip-unless-heater>
+        <legend>How is your water heater vented?</legend>
+        <div class="opts">
+{opts("Water heater venting", vent, required=False)}
+        </div>
+        <button class="btn btn-dark next" type="button" hidden>Next</button>
+      </fieldset>
+      <fieldset class="step step-location" data-skip-unless-heater>
+        <legend>Where’s your water heater located?</legend>
+        <div class="opts">
+{opts("Water heater location", location, required=False)}
+        </div>
+        <div class="field">
+          <label for="lead-location-other">If other, where is it?</label>
+          <input id="lead-location-other" name="Location (other)" type="text" maxlength="80" placeholder="e.g. garage, utility closet">
+        </div>
+        <p class="field-err" id="location-err" aria-live="polite"></p>
+        <button class="btn btn-dark next" type="button" hidden>Next</button>
+      </fieldset>
+      <fieldset class="step step-size">
+        <legend>What size is your equipment?</legend>
+        <div class="field">
+          <label for="lead-size">Size <small>(optional)</small></label>
+          <input id="lead-size" name="Equipment size" type="text" maxlength="60" placeholder="e.g. 40 gallons">
+        </div>
+        <button class="btn btn-dark next" type="button">Next</button>
       </fieldset>
       <fieldset class="step">
         <legend>How soon?</legend>
         <div class="opts">
 {opts("How soon", soon)}
         </div>
-        <button class="btn btn-navy next" type="button" hidden>Next</button>
+        <button class="btn btn-dark next" type="button" hidden>Next</button>
       </fieldset>
       <fieldset class="step step-town">
         <legend>Which town?</legend>
@@ -224,7 +256,7 @@ def quote_section():
           <input id="lead-town-other" name="Other town" type="text" autocomplete="address-level2">
         </div>
         <p class="field-err" id="town-err" aria-live="polite"></p>
-        <button class="btn btn-navy next" type="button">Next</button>
+        <button class="btn btn-dark next" type="button">Next</button>
       </fieldset>
       <fieldset class="step">
         <legend>Who should we call?</legend>
@@ -242,7 +274,7 @@ def quote_section():
         </div>
         <p class="field-err" id="lead-err" aria-live="polite"></p>
         <div class="lead-actions">
-          <button class="btn btn-amber" type="submit">Send request</button>
+          <button class="btn btn-red" type="submit">Send request</button>
         </div>
         <p class="lead-status" role="status" aria-live="polite"></p>
         <p class="lead-note">Leaking right now? Don’t wait on the form. Call <a href="tel:{PHONE_TEL}">{PHONE}</a>.</p>
@@ -259,7 +291,7 @@ def footer():
   <div class="wrap">
     <div class="cols">
       <div>
-        <img src="assets/logo-white.svg" alt="{BUSINESS}" width="852" height="132">
+        <img src="assets/logo.png" alt="{BUSINESS}" width="800" height="260" loading="lazy">
         <a class="foot-phone" href="tel:{PHONE_TEL}">{PHONE}</a>
         <p>{OWNER}, owner<br><a href="mailto:{PUBLIC_EMAIL}">{PUBLIC_EMAIL}</a></p>
       </div>
@@ -312,7 +344,7 @@ HOME = head(
     <h1 id="hero-h">No hot water?<br><span class="hot">Not for long.</span></h1>
     <p class="lead">{BUSINESS} repairs and replaces water heaters. Gas, electric and tankless.</p>
     <div class="hero-cta">
-      <a class="btn btn-amber" href="tel:{PHONE_TEL}">{ICON_PHONE}Call {PHONE}</a>
+      <a class="btn btn-red" href="tel:{PHONE_TEL}">{ICON_PHONE}Call {PHONE}</a>
       <a class="btn btn-ghost" href="#quote">Get a quote</a>
     </div>
   </div>
@@ -376,7 +408,7 @@ SERVICES_PAGE = head(
     <h1 id="hero-h">Water heaters.<br>Boilers. <span class="hot">Plumbing.</span></h1>
     <p class="lead">Mostly water heaters. If your job isn’t listed here, call and ask.</p>
     <div class="hero-cta">
-      <a class="btn btn-amber" href="tel:{PHONE_TEL}">{ICON_PHONE}Call {PHONE}</a>
+      <a class="btn btn-red" href="tel:{PHONE_TEL}">{ICON_PHONE}Call {PHONE}</a>
       <a class="btn btn-ghost" href="#quote">Get a quote</a>
     </div>
   </div>
