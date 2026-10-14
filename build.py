@@ -4,6 +4,7 @@
 Edit the settings and copy below, then run:  python3 build.py
 Do not hand-edit the generated HTML; it is overwritten on every build.
 """
+import json
 from html import escape
 from pathlib import Path
 
@@ -30,6 +31,10 @@ NEXT_URL = "https://www.hotwatertodaycorp.com/thanks.html"
 # License the work is performed under. Leave LICENSE_NO "" to hide the footer line.
 LICENSE_NO = "4656"
 LICENSE_HOLDER = "Ray Cadotte Plumbing &amp; Heating"
+
+# OpenAI Ads pixel ID (ads.openai.com > Events > Pixel). Leave "" to leave the
+# pixel off every page; site.js tracking calls then do nothing.
+OAI_PIXEL_ID = ""
 
 TOWNS = [
     "Andover", "Arlington", "Bedford", "Belmont", "Billerica", "Brighton",
@@ -73,6 +78,22 @@ def picture(name, sizes, cls="", eager=False):
             f'style="object-position:{im["pos"]}" {load}></picture>')
 
 
+def oai_pixel():
+    if not OAI_PIXEL_ID:
+        return ""
+    # Paste the official base code from ads.openai.com (Events > Pixel) here if
+    # it differs. It must define window.oaiq and fire page_viewed.
+    pid = json.dumps(OAI_PIXEL_ID).replace("</", "<\\/")
+    return f"""<script>
+!function(w,d){{if(w.oaiq)return;var q=w.oaiq=function(){{q.q.push(arguments)}};q.q=[];
+var s=d.createElement('script');s.async=true;s.src='https://ads.openai.com/pixel.js';
+d.head.appendChild(s)}}(window,document);
+oaiq('init',{pid});
+oaiq('track','page_viewed');
+</script>
+"""
+
+
 def head(title, description, path, preload_img=None):
     areas = ", ".join(f'{{"@type":"City","name":"{t}, MA"}}' for t in TOWNS)
     pre = ""
@@ -101,7 +122,7 @@ def head(title, description, path, preload_img=None):
 <script type="application/ld+json">
 {{"@context":"https://schema.org","@type":"Plumber","name":"{BUSINESS}","founder":{{"@type":"Person","name":"{OWNER}"}},"telephone":"{PHONE_TEL}","email":"{PUBLIC_EMAIL}","url":"{SITE_URL}/","image":"{SITE_URL}/assets/og.jpg","areaServed":[{areas}]}}
 </script>
-</head>
+{oai_pixel()}</head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 """
@@ -192,6 +213,11 @@ def quote_section():
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_next" value="{NEXT_URL}">
+      <input type="hidden" name="utm_source" value="">
+      <input type="hidden" name="utm_medium" value="">
+      <input type="hidden" name="utm_campaign" value="">
+      <input type="hidden" name="utm_content" value="">
+      <input type="hidden" name="oppref" value="">
       <div class="hp" aria-hidden="true"><input type="text" name="_honey" tabindex="-1" autocomplete="off"></div>
       <div class="lead-progress" aria-hidden="true"><span class="lead-bar"><span></span></span><span class="lead-count">Step 1 of 8</span></div>
       <fieldset class="step">

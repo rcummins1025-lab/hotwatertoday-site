@@ -2,7 +2,63 @@
 // form posts straight to FormSubmit, which redirects to thanks.html (_next).
 (function () {
   var form = document.getElementById('lead-form');
+
+  // First-touch ad attribution: kept 30 days, sent with the lead.
+  var ATTRIB_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'oppref'];
+  var ATTRIB_STORE = 'hwt_attrib';
+  var ATTRIB_DAYS = 30;
+
+  function readAttrib() {
+    var stores = [];
+    try { stores.push(window.localStorage); } catch (e) {}
+    try { stores.push(window.sessionStorage); } catch (e) {}
+    for (var i = 0; i < stores.length; i++) {
+      try {
+        var saved = JSON.parse(stores[i].getItem(ATTRIB_STORE));
+        if (saved && saved.v && saved.exp > Date.now()) return saved.v;
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  function captureAttrib() {
+    var params;
+    try { params = new URLSearchParams(window.location.search); } catch (e) { return; }
+    var v = {};
+    var found = false;
+    ATTRIB_KEYS.forEach(function (k) {
+      var p = (params.get(k) || '').trim().slice(0, 200);
+      if (p) { v[k] = p; found = true; }
+    });
+    if (!found || readAttrib()) return;
+    var raw = JSON.stringify({ v: v, exp: Date.now() + ATTRIB_DAYS * 864e5 });
+    try { window.localStorage.setItem(ATTRIB_STORE, raw); } catch (e) {}
+    try { window.sessionStorage.setItem(ATTRIB_STORE, raw); } catch (e) {}
+  }
+
+  function fillAttrib() {
+    if (!form) return null;
+    var v = readAttrib() || {};
+    ATTRIB_KEYS.forEach(function (k) {
+      var h = form.querySelector('input[type="hidden"][name="' + k + '"]');
+      if (h) h.value = v[k] || '';
+    });
+    return v;
+  }
+
+  // OpenAI Ads pixel events. Does nothing unless the pixel is on the page.
+  function track(name) {
+    try { if (typeof window.oaiq === 'function') window.oaiq('track', name); } catch (e) {}
+  }
+
+  captureAttrib();
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="tel:"]');
+    if (a) track('call_tap');
+  });
+
   if (!form) return;
+  fillAttrib();
 
   var steps = Array.prototype.slice.call(form.querySelectorAll('.step'));
   var count = form.querySelector('.lead-count');
@@ -238,9 +294,13 @@
       'Phone': phone.value.trim(),
       'Note': form.querySelector('#lead-note').value.trim()
     });
+    var attrib = fillAttrib();
     form.querySelectorAll('input[type="hidden"]').forEach(function (h) {
       if (h.name !== '_next') data[h.name] = h.value;
     });
+    if (attrib.utm_source) {
+      data['Lead source'] = attrib.utm_source + (attrib.utm_content ? ' / ' + attrib.utm_content : '');
+    }
 
     var thanks = new URL('thanks.html', window.location.href).href;
     if (window.HWT_PREVIEW) { window.HWT_PREVIEW(data); return; }
@@ -258,6 +318,7 @@
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
       .then(function (res) {
         if (!res.ok || String(res.body.success) !== 'true') throw new Error(res.body.message || 'Send failed');
+        track('lead_created');
         window.location.href = thanks;
       })
       .catch(function () {
