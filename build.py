@@ -27,8 +27,9 @@ FORM_CC = "info@hotwatertodaycorp.com"
 # GitHub Pages address until the domain points here, then switch to SITE_URL.
 NEXT_URL = "https://www.hotwatertodaycorp.com/thanks.html"
 
-# Massachusetts plumbing license number. Leave "" to hide it.
-LICENSE_NO = ""
+# License the work is performed under. Leave LICENSE_NO "" to hide the footer line.
+LICENSE_NO = "4656"
+LICENSE_HOLDER = "Ray Cadotte Plumbing &amp; Heating"
 
 TOWNS = [
     "Andover", "Arlington", "Bedford", "Belmont", "Billerica", "Brighton",
@@ -127,7 +128,7 @@ def header(active):
 
 def proof():
     # Only claim a license once LICENSE_NO is filled in (Kyle's MA license pending).
-    if LICENSE_NO:
+    if False:  # license now shown as a footer line, not a "licensed" claim
         third = f'<div class="proof-item"><strong>Licensed in MA</strong><span>Massachusetts licensed plumber. Lic. #{LICENSE_NO}.</span></div>'
     else:
         third = '<div class="proof-item"><strong>Every type</strong><span>Gas, electric and tankless water heaters, plus boilers.</span></div>'
@@ -287,6 +288,7 @@ def quote_section():
 
 
 def footer():
+    lic = f'<p class="lic">Work performed under {LICENSE_HOLDER}, Lic# {LICENSE_NO}</p>' if LICENSE_NO else ""
     return f"""<footer class="site-footer">
   <div class="wrap">
     <div class="cols">
@@ -305,6 +307,7 @@ def footer():
       </div>
     </div>
     <div class="legal"><span>&copy; <span class="yr">2026</span> {BUSINESS}</span><span>Water heaters, boilers and plumbing in {N_TOWNS} Massachusetts towns</span></div>
+    {lic}
   </div>
 </footer>
 <nav class="call-bar" aria-label="Call or get a quote">
