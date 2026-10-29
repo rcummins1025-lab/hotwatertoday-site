@@ -28,7 +28,7 @@ FORM_CC = "info@hotwatertodaycorp.com"
 NEXT_URL = "https://www.hotwatertodaycorp.com/thanks.html"
 
 # License the work is performed under. Leave LICENSE_NO "" to hide the footer line.
-LICENSE_NO = "4656"
+LICENSE_NO = "1310028144"
 LICENSE_HOLDER = "Ray Cadotte Plumbing &amp; Heating"
 
 TOWNS = [
